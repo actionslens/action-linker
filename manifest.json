@@ -4,6 +4,9 @@
   "description": "Easily naviagte to GitHub Actions reusable workflow or actions page in new tab direct from the caller workflow",
   "version": "1.0",
   "permissions": ["activeTab"],
+  "icons": {
+    "128": "icons/icon.svg"
+  },
   "content_scripts": [
     {
       "matches": [
