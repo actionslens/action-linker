@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "GitHub Actions Linker by Actions Lens",
+  "description": "Open GitHub Actions reusable workflow or actions page in new tab direct from the caller workflow",
+  "version": "1.0",
+  "permissions": ["activeTab"],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://github.com/*"
+      ],
+      "js": ["content.js"]
+    }
+  ]
+}
