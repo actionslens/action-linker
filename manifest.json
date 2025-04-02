@@ -5,7 +5,7 @@
   "version": "1.0",
   "permissions": ["activeTab"],
   "icons": {
-    "128": "icons/icon.svg"
+    "128": "icons/icon.ico"
   },
   "content_scripts": [
     {
