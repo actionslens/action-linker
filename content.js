@@ -3,7 +3,19 @@ function processPage() {
   
   if (textarea) {
     const textareaContent = textarea.value;
+    const container = textarea.parentElement;
     
+    // ודא שהמיכל קיים ויש לו יכולת להכיל אלמנטים positioned
+    if (!container) return;
+    container.style.position = "relative"; // ודא שהמיכל תומך במיקום אבסולוטי
+
+    // ניקוי כפתורים קיימים שהוספנו
+    const existingButtons = container.querySelectorAll('.github-linker-button');
+    existingButtons.forEach(button => button.remove());
+
+    // שימוש ב-DocumentFragment לאופטימיזציה
+    const fragment = document.createDocumentFragment();
+
     // תמיכה במספר פורמטים של workflow ו-actions
     // 1. קובץ workflow מרוחק במבנה מלא: org/repo/.github/workflows/file.yml@ref
     // 2. קובץ workflow מקומי: ./.github/workflows/file.yml
@@ -79,19 +91,16 @@ function processPage() {
         }
       }
       
-      // אם יש URL תקין, יוצר כפתור
+      // אם יש URL תקין, יוצר כפתור ומוסיף ל-fragment
       if (workflowUrl) {
         // מחשב את המיקום של השורה בטקסט
         const lineStartIndex = textareaContent.lastIndexOf('\n', match.index) + 1;
         const lineEndIndex = textareaContent.indexOf('\n', match.index);
         const lineText = textareaContent.substring(lineStartIndex, lineEndIndex !== -1 ? lineEndIndex : textareaContent.length);
         
-        // מוצא את המיכל של ה-textarea
-        const container = textarea.parentElement;
-        container.style.position = "relative";
-        
         // יצירת הכפתור עם עיצוב משופר
         const button = document.createElement("button");
+        button.classList.add('github-linker-button'); // הוספת המחלקה לזיהוי קל
         
         // קביעת סוג הפריט (action חיצוני, action מקומי, או workflow)
         let itemType = "GitHub Action";
@@ -157,16 +166,24 @@ function processPage() {
         
         // מיקום הכפתור בהתאם לשורה
         const lineNumber = (textareaContent.substring(0, lineStartIndex).match(/\n/g) || []).length;
-        button.style.top = `${lineNumber * 20 + 1}px`;
+        // שימוש ב-Line Height של ה-textarea אם אפשר, אחרת ערך קבוע
+        const computedStyle = getComputedStyle(textarea);
+        const lineHeight = parseFloat(computedStyle.lineHeight) || 20; // שימוש ב-lineHeight או ברירת מחדל של 20
+        button.style.top = `${lineNumber * lineHeight + 1}px`;
         
         // תיאום מיקום הכפתור עם סוף הטקסט של ה-uses
         const usesText = lineText.substring(0, match.index + match[0].length - lineStartIndex);
-        const textWidth = getTextWidth(usesText, getComputedStyle(textarea).font);
-        button.style.left = `${textWidth + 100}px`; // מרחק של 100 פיקסלים
+        const textWidth = getTextWidth(usesText, computedStyle.font);
+        // קבלת מיקום ה-padding של ה-textarea
+        const textareaPaddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
+        button.style.left = `${textareaPaddingLeft + textWidth + 10}px`; // הגדלת המרווח ל-25 פיקסלים
         
-        container.appendChild(button);
+        // הוסף את הכפתור ל-Fragment במקום ישירות ל-Container
+        fragment.appendChild(button);
       }
     }
+    // הוסף את כל הכפתורים מה-Fragment ל-DOM בפעם אחת
+    container.appendChild(fragment);
   }
 }
 
@@ -181,12 +198,12 @@ function getTextWidth(text, font) {
 
 // ניהול הרצות כפולות והגבלת תדירות
 let isProcessing = false;
-let pageProcessed = false;
-let processTimeout = null;
+let processTimeout = null; // הוסר pageProcessed כיוון שלא נעשה בו שימוש
 
 // MutationObserver עם debounce ומניעת הרצות כפולות
 const observer = new MutationObserver((mutations) => {
   // בדיקה אם כדאי לעבד את העמוד שוב
+  // בדוק גם אם textarea עדיין קיים ב-DOM
   const textarea = document.querySelector('textarea[data-testid="read-only-cursor-text-area"]');
   if (!textarea || isProcessing) return;
 
@@ -199,29 +216,48 @@ const observer = new MutationObserver((mutations) => {
   processTimeout = setTimeout(() => {
     if (!isProcessing) {
       isProcessing = true;
-      processPage();
-      isProcessing = false;
-      pageProcessed = true;
+      observer.disconnect(); // *** נתק את ה-Observer לפני העיבוד ***
+      try {
+        processPage();
+      } catch (error) {
+          console.error("GitHub Linker Extension: Error during processPage:", error);
+      } finally {
+          isProcessing = false;
+          // *** חבר מחדש את ה-Observer לאחר העיבוד ***
+          // ודא שה-targetNode עדיין קיים לפני החיבור מחדש
+          const targetNode = document.querySelector('.react-code-view-edit-content-container') || document.body;
+          if(targetNode) {
+             startObserver(targetNode); // העבר את ה-targetNode לפונקציה
+          }
+      }
     }
-  }, 500);
+  }, 500); // אפשר לשקול להגדיל את ההשהייה אם עדיין יש בעיות
 });
 
 // הגדרת הObserver לצפייה בשינויים רק במקומות הרלוונטיים
-const startObserver = () => {
-  // אם כבר עיבדנו פעם אחת, המשך לצפות רק בשינויים משמעותיים
-  const targetNode = document.querySelector('.react-code-view-edit-content-container') || document.body;
-  if (targetNode) {
-    observer.observe(targetNode, { 
-      childList: true, 
-      subtree: true,
-      characterData: false,
-      attributes: false
-    });
+// הפונקציה מקבלת כעת את ה-node להאזין לו
+const startObserver = (targetNode) => {
+  if (!targetNode) return; // הגנה נוספת
+  try {
+      observer.observe(targetNode, {
+        childList: true,
+        subtree: true,
+        characterData: false, // לא רלוונטי לשינויים שאנחנו מחפשים
+        attributes: false    // לא רלוונטי לשינויים שאנחנו מחפשים
+      });
+  } catch (error) {
+      console.error("GitHub Linker Extension: Failed to start observer:", error);
   }
 };
 
 // הרצה ראשונית
 setTimeout(() => {
-  processPage();
-  startObserver();
+  try {
+      processPage();
+      // מצא את ה-targetNode הראשוני
+      const initialTargetNode = document.querySelector('.react-code-view-edit-content-container') || document.body;
+      startObserver(initialTargetNode); // התחל להאזין ל-node שנמצא
+  } catch (error) {
+      console.error("GitHub Linker Extension: Error during initial run:", error);
+  }
 }, 1000);
