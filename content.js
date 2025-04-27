@@ -109,54 +109,68 @@ function processPage() {
         } else if (workflowPath.match(/^[\w-]+\/[\w-]+@[\w.-]+$/)) {
           itemType = "External GitHub Action";
         }
-                // אייקון SVG לקישור חיצוני (בסגנון דומה ל-GitHub Octicons)
-      const externalLinkIconSvg = `<svg aria-hidden="true" height="12" viewBox="0 0 16 16" version="1.1" width="12" fill="currentColor">
-              <path fill-rule="evenodd" d="M10.604 1h4.146a.25.25 0 01.25.25v4.146a.25.25 0 01-.427.177L13.03 4.03 9.28 7.78a.75.75 0 01-1.06-1.06l3.75-3.75-1.543-1.543A.25.25 0 0110.604 1zM3.75 2A1.75 1.75 0 002 3.75v8.5c0 .966.784 1.75 1.75 1.75h8.5A1.75 1.75 0 0014 12.25v-3.5a.75.75 0 00-1.5 0v3.5a.25.25 0 01-.25.25h-8.5a.25.25 0 01-.25-.25v-8.5a.25.25 0 01.25-.25h3.5a.75.75 0 000-1.5h-3.5z"></path>
-          </svg>`;
+        
+        // אייקון SVG לקישור חיצוני (בסגנון דומה ל-GitHub Octicons)
+        const externalLinkIconSvg = `<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" fill="currentColor">
+            <path fill-rule="evenodd" d="M10.604 1h4.146a.25.25 0 01.25.25v4.146a.25.25 0 01-.427.177L13.03 4.03 9.28 7.78a.75.75 0 01-1.06-1.06l3.75-3.75-1.543-1.543A.25.25 0 0110.604 1zM3.75 2A1.75 1.75 0 002 3.75v8.5c0 .966.784 1.75 1.75 1.75h8.5A1.75 1.75 0 0014 12.25v-3.5a.75.75 0 00-1.5 0v3.5a.25.25 0 01-.25.25h-8.5a.25.25 0 01-.25-.25v-8.5a.25.25 0 01.25-.25h3.5a.75.75 0 000-1.5h-3.5z"></path>
+        </svg>`;
+        
+        // הגדרת הכפתור עם אייקון וטקסט קצר
         button.innerHTML = `
-        <span style="display: inline-flex; align-items: center; gap: 4px;">
-            <span>${itemType}</span>
-            ${externalLinkIconSvg}
-        </span>`;
+          <span style="display: inline-flex; align-items: center; gap: 3px; font-size: 12px;">
+            <span>Go</span>
+            ${externalLinkIconSvg.replace('height="16"', 'height="11"').replace('width="16"', 'width="11"')}
+          </span>
+        `;
         button.style.position = "absolute";
         button.style.cursor = "pointer";
         
-          // --- עיצוב חדש בהשראת GitHub ---
-          button.style.background = "#f6f8fa"; // רקע אפור בהיר
-          button.style.color = "#24292f"; // צבע טקסט כהה
-          button.style.border = "1px solid rgba(27, 31, 36, 0.15)"; // גבול עדין
-          button.style.borderRadius = "8px"; // פינות מעוגלות סטנדרטיות
-          button.style.padding = "3px 12px"; // ריווח פנימי משופר
-          button.style.fontSize = "11px"; // פונט מעט גדול יותר
-          button.style.fontWeight = "500"; // משקל פונט רגיל-בינוני
-          button.style.boxShadow = "0 1px 0 rgba(27, 31, 36, 0.04), inset 0 1px 0 hsla(0,0%,100%,0.25)"; // צל עדין
-          button.style.transition = "background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1)"; // אנימציה חלקה
-          button.style.lineHeight = "14px"; // גובה שורה תואם לגובה הtextarea
-          button.style.zIndex = "1000";
+        // הוספת כותרת טקסט מרחף (tooltip) המציגה את סוג הפריט ואת הנתיב המלא
+        button.title = `Open ${itemType}: ${workflowPath}`;
+        
+        // --- עיצוב עם יותר נוכחות ועדיין קומפקטי ---
+        button.style.background = "#f6f8fa"; // רקע אפור בהיר בסגנון GitHub
+        button.style.color = "#0969da"; // צבע טקסט כחול GitHub
+        button.style.border = "1px solid rgba(31, 35, 40, 0.15)"; // גבול דק
+        button.style.borderRadius = "5px"; // פינות מעוגלות קצת יותר
+        button.style.padding = "2px 6px"; // ריפוד מעט גדול יותר
+        button.style.fontSize = "12px"; // גודל פונט מעט גדול יותר
+        button.style.fontWeight = "500"; // משקל פונט בינוני
+        button.style.lineHeight = "1"; // גובה שורה מינימלי
+        button.style.transition = "all 0.2s cubic-bezier(0.3, 0, 0.5, 1)"; // אנימציה חלקה
+        button.style.zIndex = "1000";
+        button.style.boxShadow = "0 1px 0 rgba(27, 31, 36, 0.04)"; // צל קל
 
-          // אפקטים בריחוף
-          button.addEventListener("mouseover", () => {
-              button.style.background = "#f3f4f6"; // רקע מעט כהה יותר
-              button.style.borderColor = "rgba(27, 31, 36, 0.15)";
-          });
+        // אפקטים בריחוף
+        button.addEventListener("mouseover", () => {
+            button.style.background = "#f3f4f6"; // רקע מעט כהה יותר בריחוף
+            button.style.color = "#0969da"; // שמירה על הצבע הכחול
+            button.style.textDecoration = "none"; // ללא קו תחתון
+            button.style.borderColor = "rgba(31, 35, 40, 0.2)"; // גבול מעט כהה יותר
+        });
 
-          button.addEventListener("mouseout", () => {
-              button.style.background = "#f6f8fa";
-              button.style.borderColor = "rgba(27, 31, 36, 0.15)";
-          });
+        button.addEventListener("mouseout", () => {
+            button.style.background = "#f6f8fa"; // חזרה לרקע מקורי
+            button.style.color = "#0969da"; // שמירה על הצבע
+            button.style.textDecoration = "none"; // ללא קו תחתון
+            button.style.borderColor = "rgba(31, 35, 40, 0.15)"; // חזרה לגבול מקורי
+        });
 
-              // אפקט לחיצה (בדומה ל-GitHub, לא מאוד מורגש אבל קיים)
-              button.addEventListener("mousedown", () => {
-                  button.style.background = "#edeff2"; // רקע עוד יותר כהה
-                  button.style.borderColor = "rgba(27, 31, 36, 0.15)";
-                  button.style.boxShadow = "inset 0 1px 0 rgba(27, 31, 36, 0.1)"; // צל פנימי קל
-              });
-              button.addEventListener("mouseup", () => {
-                  // חזרה למצב רגיל או hover בהתאם למיקום העכבר
-                  const isHovering = button.matches(':hover');
-                  button.style.background = isHovering ? "#f3f4f6" : "#f6f8fa";
-                  button.style.boxShadow = "0 1px 0 rgba(27, 31, 36, 0.04), inset 0 1px 0 hsla(0,0%,100%,0.25)";
-               });
+        // אפקט לחיצה 
+        button.addEventListener("mousedown", () => {
+            button.style.background = "#e7e9eb"; // רקע יותר כהה בלחיצה
+            button.style.color = "#0550ae"; // כחול כהה יותר בלחיצה
+            button.style.boxShadow = "inset 0 1px 0 rgba(27, 31, 36, 0.1)"; // צל פנימי
+        });
+        
+        button.addEventListener("mouseup", () => {
+            // חזרה למצב רגיל או hover בהתאם למיקום העכבר
+            const isHovering = button.matches(':hover');
+            button.style.background = isHovering ? "#f3f4f6" : "#f6f8fa";
+            button.style.color = "#0969da"; // חזרה לכחול רגיל
+            button.style.boxShadow = "0 1px 0 rgba(27, 31, 36, 0.04)"; // חזרה לצל מקורי
+            button.style.borderColor = isHovering ? "rgba(31, 35, 40, 0.2)" : "rgba(31, 35, 40, 0.15)"; // גבול מתאים למצב
+        });
         
         // פתיחת הקישור
         button.addEventListener("click", (e) => {
@@ -166,19 +180,34 @@ function processPage() {
         
         // מיקום הכפתור בהתאם לשורה
         const lineNumber = (textareaContent.substring(0, lineStartIndex).match(/\n/g) || []).length;
-        // שימוש ב-Line Height של ה-textarea אם אפשר, אחרת ערך קבוע
         const computedStyle = getComputedStyle(textarea);
-        const lineHeight = parseFloat(computedStyle.lineHeight) || 20; // שימוש ב-lineHeight או ברירת מחדל של 20
-        button.style.top = `${lineNumber * lineHeight + 1}px`;
+        const lineHeight = parseFloat(computedStyle.lineHeight) || 20;
+        // מיקום הכפתור יוגדר בהמשך
         
-        // תיאום מיקום הכפתור עם סוף הטקסט של ה-uses
-        const usesText = lineText.substring(0, match.index + match[0].length - lineStartIndex);
-        const textWidth = getTextWidth(usesText, computedStyle.font);
-        // קבלת מיקום ה-padding של ה-textarea
-        const textareaPaddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
-        button.style.left = `${textareaPaddingLeft + textWidth + 10}px`; // הגדלת המרווח ל-25 פיקסלים
+        // מיקום הכפתור משמאל למילה "uses:"
+        const usesIndex = lineText.indexOf('uses:');
         
-        // הוסף את הכפתור ל-Fragment במקום ישירות ל-Container
+        if (usesIndex !== -1) {
+          // חישוב המיקום של המילה "uses:" בתוך השורה
+          const beforeUsesText = lineText.substring(0, usesIndex);
+          const beforeUsesWidth = getTextWidth(beforeUsesText, computedStyle.font);
+          const textareaPaddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
+          
+          // מיקום הכפתור ממש לפני המילה "uses:" (משמאל) - מרווח מותאם לגודל החדש
+          button.style.left = `${textareaPaddingLeft + beforeUsesWidth - 50}px`; // מרווח מותאם לכפתור המוגדל
+          
+          // הזזת הכפתור למטה קצת
+          button.style.top = `${lineNumber * lineHeight - 0}px`; // ללא הזזה למעלה
+        } else {
+          // מיקום ברירת המחדל אם לא נמצא "uses:"
+          const textareaPaddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
+          button.style.left = `${textareaPaddingLeft + 5}px`;
+          
+          // הזזת הכפתור למטה גם במצב ברירת המחדל
+          button.style.top = `${lineNumber * lineHeight - 0}px`;
+        }
+        
+        // הוסף את הכפתור ל-Fragment
         fragment.appendChild(button);
       }
     }
