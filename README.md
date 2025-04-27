@@ -25,7 +25,7 @@ This Chrome extension enhances the GitHub experience by adding clickable links t
 There are two ways to install this extension:
 
 ### Installation from Chrome Web Store
-1. Visit the extension page in the Chrome Web Store: [GitHub Actions Linker](https://chromewebstore.google.com/detail/github-actions-linker-by/pgmijoajcjlbhpgnmckbehelkdejnfam?authuser=0&hl=iw)
+1. Visit the extension page in the Chrome Web Store: [GitHub Actions Linker](https://chromewebstore.google.com/detail/github-actions-linker-by/pgmijoajcjlbhpgnmckbehelkdejnfam)
 2. Click on the "Add to Chrome" button
 3. Confirm the installation
 
