@@ -14,11 +14,22 @@ This Chrome extension enhances the GitHub experience by adding clickable links t
   - Converts local references to full GitHub URLs
   - Links directly to the corresponding file or directory in GitHub
 - **User-friendly buttons**
-  - Styled to match GitHub's UI
-  - Includes hover and click effects
-  - Adds an external link icon for clarity
+  - Compact, stylish "Go" button with external link icon
+  - Positioned to the left of each `uses:` reference 
+  - Styled to match GitHub's UI with a clean, modern design
+  - Includes hover and click effects for better user interaction
+  - Tooltip shows detailed information about the linked resource
+  - Optimized size to avoid interfering with code readability
 
 ## Installation
+There are two ways to install this extension:
+
+### Installation from Chrome Web Store
+1. Visit the extension page in the Chrome Web Store: [GitHub Actions Linker](https://chromewebstore.google.com/detail/github-actions-linker-by/pgmijoajcjlbhpgnmckbehelkdejnfam?authuser=0&hl=iw)
+2. Click on the "Add to Chrome" button
+3. Confirm the installation
+
+### Local Installation (for developers)
 1. Download or clone this repository.
 2. Open Google Chrome and navigate to `chrome://extensions/`.
 3. Enable **Developer mode** (toggle in the top right corner).
@@ -45,4 +56,11 @@ Contributions are welcome! Feel free to open issues or submit pull requests to i
 
 ## License
 This project is licensed under the MIT License.
+
+## Recent Updates
+- **UI Improvements**
+  - Redesigned buttons with more compact, clean visual style
+  - Improved positioning to avoid overlapping with long branch names
+  - Added informative tooltips that show the full path and type of the reference
+  - Enhanced visual feedback on hover and click
 
